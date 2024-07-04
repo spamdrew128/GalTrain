@@ -11,13 +11,11 @@ mod hip {
 
     pub fn build() {
         // Tell cargo to look for shared libraries in the specified directory
-        println!("cargo:rustc-link-search={HIP_PATH}/lib");
+        println!("cargo::rustc-link-search=native={HIP_PATH}/lib");
 
-        // Tell cargo to tell rustc to link the system bzip2
-        // shared library.
-        println!("cargo:rustc-link-lib=dylib=hipblas");
-        println!("cargo:rustc-link-lib=dylib=rocblas");
-        println!("cargo:rustc-link-lib=dylib=amdhip64");
+        println!("cargo::rustc-link-lib=dylib=hipblas");
+        println!("cargo::rustc-link-lib=dylib=rocblas");
+        println!("cargo::rustc-link-lib=dylib=amdhip64");
 
         // The bindgen::Builder is the main entry point
         // to bindgen, and lets you build up options for
