@@ -5,31 +5,32 @@ fn main() {
 mod hip {
     use std::env;
     use std::path::PathBuf;
+    use bindgen::EnumVariation;
 
     const WRAPPER_PATH: &str = "./src/wrapper.h";
     const HIP_PATH: &str = "/opt/rocm";
 
     pub fn build() {
-        // Tell cargo to look for shared libraries in the specified directory
-        println!("cargo::rustc-link-search=native={HIP_PATH}/lib");
-
         println!("cargo::rustc-link-lib=dylib=hipblas");
         println!("cargo::rustc-link-lib=dylib=rocblas");
         println!("cargo::rustc-link-lib=dylib=amdhip64");
+
+        println!("cargo::rustc-link-search=native={HIP_PATH}/lib");
 
         // The bindgen::Builder is the main entry point
         // to bindgen, and lets you build up options for
         // the resulting bindings.
         let bindings = bindgen::Builder::default()
-            // The input header we would like to generate
-            // bindings for.
+            .clang_arg(format!("-I{HIP_PATH}/include"))
             .header(WRAPPER_PATH)
-            // Tell cargo to invalidate the built crate whenever any of the
-            // included header files changed.
             .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
-            // Finish the builder and generate the bindings.
+            .size_t_is_usize(true)
+            .default_enum_style(EnumVariation::Rust {
+                non_exhaustive: true,
+            })
+            .must_use_type("hipError")
+            .layout_tests(false)
             .generate()
-            // Unwrap the Result and panic on failure.
             .expect("Unable to generate bindings");
 
         // Write the bindings to the $OUT_DIR/bindings.rs file.
