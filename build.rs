@@ -4,12 +4,13 @@ fn main() {
 
 mod hip {
     use bindgen::EnumVariation;
-    use std::path::PathBuf;
+    use std::{env, path::PathBuf};
 
     const WRAPPER_PATH: &str = "./src/wrapper.h";
     const HIP_PATH: &str = "/opt/rocm";
     const BINDINGS_PATH: &str = "./src/hip_bindings";
     const KERNELS_PATH: &str = "./src/kernals";
+    const KERNALS_ASM: &str = "libkernels.a";
 
     fn hip_lib_bindgen() {
         println!("cargo::rustc-link-lib=dylib=hipblas");
@@ -29,11 +30,8 @@ mod hip {
             .must_use_type("hipError")
             .layout_tests(false)
             .generate()
-            .expect("Unable to generate bindings");
-
-        let out_path = PathBuf::from(BINDINGS_PATH);
-        bindings
-            .write_to_file(out_path.join("bindings.rs"))
+            .expect("Unable to generate bindings")
+            .write_to_file(PathBuf::from(BINDINGS_PATH).join("hip_bindings.rs"))
             .expect("Couldn't write bindings!");
     }
 
@@ -51,7 +49,27 @@ mod hip {
             .files(files)
             .flag(&format!("--offload-arch=gfx1010"))
             .flag("-munsafe-fp-atomics") // Required since AMDGPU doesn't emit hardware atomics by default
-            .compile("libkernels.a");
+            .compile(KERNALS_ASM);
+
+        let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
+        let kernal_asm = out_dir.join(KERNALS_ASM);
+
+        println!("cargo::rustc-link-search=native={}", kernal_asm.display());
+
+        // let bindings = bindgen::Builder::default()
+        //     .clang_arg(format!("-I{}", kernal_asm.display()))
+        //     .header(WRAPPER_PATH)
+        //     .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+        //     .size_t_is_usize(true)
+        //     .default_enum_style(EnumVariation::Rust {
+        //         non_exhaustive: true,
+        //     })
+        //     .must_use_type("hipError")
+        //     .layout_tests(false)
+        //     .generate()
+        //     .expect("Unable to generate bindings")
+        //     .write_to_file(out_path.join("bindings.rs"))
+        //     .expect("Couldn't write bindings!");
     }
 
     pub fn build() {
