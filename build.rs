@@ -54,13 +54,7 @@ mod hip {
             .flag("-munsafe-fp-atomics") // Required since AMDGPU doesn't emit hardware atomics by default
             .compile(KERNAL_ASM);
 
-        let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
-        let kernal_asm = out_dir.join(KERNAL_ASM);
-
-        println!("cargo::rustc-link-search=native={}", kernal_asm.display());
-
         bindgen::Builder::default()
-            .clang_arg(format!("-I{}", kernal_asm.display()))
             .header(KERNAL_WRAPPER_PATH)
             .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
             .size_t_is_usize(true)
