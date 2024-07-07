@@ -8,11 +8,12 @@ mod hip {
 
     const HIP_WRAPPER_PATH: &str = "./src/wrapper.h";
     const HIP_PATH: &str = "/opt/rocm";
-    const HIP_BINDINGS_PATH: &str = "./src/hip_bindings";
+    const HIP_BINDINGS_PATH: &str = "./src/bindings/hip_bindings.rs";
 
-    const KERNAL_WRAPPER_PATH: &str = "./src/kernal/kernal_wrapper.h";
-    const KERNELS_PATH: &str = "./src/kernal";
+    const KERNAL_WRAPPER_PATH: &str = "./src/kernals/kernal_wrapper.h";
+    const KERNELS_PATH: &str = "./src/kernals";
     const KERNAL_ASM: &str = "libkernels.a";
+    const KERNAL_BINDINGS_PATH: &str = "./src/bindings/kernal_bindings.rs";
 
     fn hip_lib_bindgen() {
         println!("cargo::rustc-link-lib=dylib=hipblas");
@@ -33,7 +34,7 @@ mod hip {
             .layout_tests(false)
             .generate()
             .expect("Unable to generate bindings")
-            .write_to_file(PathBuf::from(HIP_BINDINGS_PATH).join("hip_bindings.rs"))
+            .write_to_file(HIP_BINDINGS_PATH)
             .expect("Couldn't write bindings!");
     }
 
@@ -70,12 +71,12 @@ mod hip {
             .layout_tests(false)
             .generate()
             .expect("Unable to generate bindings")
-            .write_to_file(PathBuf::from(HIP_BINDINGS_PATH).join("bindings.rs"))
+            .write_to_file(KERNAL_BINDINGS_PATH)
             .expect("Couldn't write bindings!");
     }
 
     pub fn build() {
         hip_lib_bindgen();
-        // kernal_bindgen();
+        kernal_bindgen();
     }
 }
