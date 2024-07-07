@@ -6,11 +6,13 @@ mod hip {
     use bindgen::EnumVariation;
     use std::{env, path::PathBuf};
 
-    const WRAPPER_PATH: &str = "./src/wrapper.h";
+    const HIP_WRAPPER_PATH: &str = "./src/wrapper.h";
     const HIP_PATH: &str = "/opt/rocm";
-    const BINDINGS_PATH: &str = "./src/hip_bindings";
-    const KERNELS_PATH: &str = "./src/kernals";
-    const KERNALS_ASM: &str = "libkernels.a";
+    const HIP_BINDINGS_PATH: &str = "./src/hip_bindings";
+
+    const KERNAL_WRAPPER_PATH: &str = "./src/kernal/kernal_wrapper.h";
+    const KERNELS_PATH: &str = "./src/kernal";
+    const KERNAL_ASM: &str = "libkernels.a";
 
     fn hip_lib_bindgen() {
         println!("cargo::rustc-link-lib=dylib=hipblas");
@@ -19,9 +21,9 @@ mod hip {
 
         println!("cargo::rustc-link-search=native={HIP_PATH}/lib");
 
-        let bindings = bindgen::Builder::default()
+        bindgen::Builder::default()
             .clang_arg(format!("-I{HIP_PATH}/include"))
-            .header(WRAPPER_PATH)
+            .header(HIP_WRAPPER_PATH)
             .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
             .size_t_is_usize(true)
             .default_enum_style(EnumVariation::Rust {
@@ -31,7 +33,7 @@ mod hip {
             .layout_tests(false)
             .generate()
             .expect("Unable to generate bindings")
-            .write_to_file(PathBuf::from(BINDINGS_PATH).join("hip_bindings.rs"))
+            .write_to_file(PathBuf::from(HIP_BINDINGS_PATH).join("hip_bindings.rs"))
             .expect("Couldn't write bindings!");
     }
 
@@ -49,31 +51,31 @@ mod hip {
             .files(files)
             .flag(&format!("--offload-arch=gfx1010"))
             .flag("-munsafe-fp-atomics") // Required since AMDGPU doesn't emit hardware atomics by default
-            .compile(KERNALS_ASM);
+            .compile(KERNAL_ASM);
 
         let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
-        let kernal_asm = out_dir.join(KERNALS_ASM);
+        let kernal_asm = out_dir.join(KERNAL_ASM);
 
         println!("cargo::rustc-link-search=native={}", kernal_asm.display());
 
-        // let bindings = bindgen::Builder::default()
-        //     .clang_arg(format!("-I{}", kernal_asm.display()))
-        //     .header(WRAPPER_PATH)
-        //     .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
-        //     .size_t_is_usize(true)
-        //     .default_enum_style(EnumVariation::Rust {
-        //         non_exhaustive: true,
-        //     })
-        //     .must_use_type("hipError")
-        //     .layout_tests(false)
-        //     .generate()
-        //     .expect("Unable to generate bindings")
-        //     .write_to_file(out_path.join("bindings.rs"))
-        //     .expect("Couldn't write bindings!");
+        bindgen::Builder::default()
+            .clang_arg(format!("-I{}", kernal_asm.display()))
+            .header(KERNAL_WRAPPER_PATH)
+            .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+            .size_t_is_usize(true)
+            .default_enum_style(EnumVariation::Rust {
+                non_exhaustive: true,
+            })
+            .must_use_type("hipError")
+            .layout_tests(false)
+            .generate()
+            .expect("Unable to generate bindings")
+            .write_to_file(PathBuf::from(HIP_BINDINGS_PATH).join("bindings.rs"))
+            .expect("Couldn't write bindings!");
     }
 
     pub fn build() {
         hip_lib_bindgen();
-        kernal_bindgen();
+        // kernal_bindgen();
     }
 }
