@@ -3,14 +3,15 @@ fn main() {
 }
 
 mod hip {
-    use std::path::PathBuf;
     use bindgen::EnumVariation;
+    use std::path::PathBuf;
 
     const WRAPPER_PATH: &str = "./src/wrapper.h";
     const HIP_PATH: &str = "/opt/rocm";
     const BINDINGS_PATH: &str = "./src/hip_bindings";
+    const KERNELS_PATH: &str = "./src/kernals";
 
-    pub fn build() {
+    fn hip_lib_bindgen() {
         println!("cargo::rustc-link-lib=dylib=hipblas");
         println!("cargo::rustc-link-lib=dylib=rocblas");
         println!("cargo::rustc-link-lib=dylib=amdhip64");
@@ -33,10 +34,31 @@ mod hip {
             .generate()
             .expect("Unable to generate bindings");
 
-        // Write the bindings to the $OUT_DIR/bindings.rs file.
         let out_path = PathBuf::from(BINDINGS_PATH);
         bindings
             .write_to_file(out_path.join("bindings.rs"))
             .expect("Couldn't write bindings!");
+    }
+
+    fn kernal_bindgen() {
+        let file_names = ["vector_add"];
+        let files: Vec<String> = file_names
+            .iter()
+            .map(|name| format!("{KERNELS_PATH}/{name}.cpp"))
+            .collect();
+
+        cc::Build::new()
+            .compiler("hipcc")
+            .debug(false)
+            .opt_level(3)
+            .files(files)
+            .flag(&format!("--offload-arch=gfx1010"))
+            .flag("-munsafe-fp-atomics") // Required since AMDGPU doesn't emit hardware atomics by default
+            .compile("libkernels.a");
+    }
+
+    pub fn build() {
+        hip_lib_bindgen();
+        kernal_bindgen();
     }
 }

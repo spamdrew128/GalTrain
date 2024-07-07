@@ -19,7 +19,7 @@ void AddVecs(float *dest, const float *a, const float* b, size_t len) {
     H_A(hipMemcpy(d_b, b, len, hipMemcpyHostToDevice));
 
     size_t blockSize = 256;
-    size_t blockCount = (len + blocksize - 1) / blocksize;
+    size_t blockCount = (len + blockSize - 1) / blockSize;
 
     VectorAdd<<<blockCount, blockSize>>>(d_dest, d_a, d_b, len);
     H_A(hipDeviceSynchronize());
