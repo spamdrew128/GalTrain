@@ -6,7 +6,7 @@ mod hip {
     use bindgen::EnumVariation;
     use std::{env, path::PathBuf};
 
-    const HIP_WRAPPER_PATH: &str = "./src/wrapper.h";
+    const HIP_WRAPPER_PATH: &str = "./src/hip_wrapper.h";
     const HIP_PATH: &str = "/opt/rocm";
     const HIP_BINDINGS_PATH: &str = "./src/bindings/hip_bindings.rs";
 
