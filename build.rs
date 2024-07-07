@@ -57,7 +57,6 @@ fn kernal_bindgen() {
         .compile(KERNAL_ASM);
 
     bindgen::Builder::default()
-        .clang_arg(format!("-I{}", out_dir().join(KERNAL_ASM).display()))
         .header(KERNAL_WRAPPER_PATH)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .size_t_is_usize(true)
