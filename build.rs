@@ -3,12 +3,12 @@ fn main() {
 }
 
 mod hip {
-    use std::env;
     use std::path::PathBuf;
     use bindgen::EnumVariation;
 
     const WRAPPER_PATH: &str = "./src/wrapper.h";
     const HIP_PATH: &str = "/opt/rocm";
+    const BINDINGS_PATH: &str = "./src/hip_bindings";
 
     pub fn build() {
         println!("cargo::rustc-link-lib=dylib=hipblas");
@@ -34,7 +34,7 @@ mod hip {
             .expect("Unable to generate bindings");
 
         // Write the bindings to the $OUT_DIR/bindings.rs file.
-        let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
+        let out_path = PathBuf::from(BINDINGS_PATH);
         bindings
             .write_to_file(out_path.join("bindings.rs"))
             .expect("Couldn't write bindings!");
