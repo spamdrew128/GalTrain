@@ -2,7 +2,7 @@
 
 #define H_A(x) assert((x) == hipSuccess)
 
-__global__ void VectorAdd(float *dest, const float *a, const float* b, size_t len) {
+__global__ void KernalVectorAdd(float *dest, const float *a, const float* b, size_t len) {
     size_t id = blockIdx.x * blockDim.x + threadIdx.x;
     if(id < len) {
         dest[id] = a[id] + b[id];
@@ -21,7 +21,7 @@ void AddVecs(float *dest, const float *a, const float* b, size_t len) {
     size_t blockSize = 256;
     size_t blockCount = (len + blockSize - 1) / blockSize;
 
-    VectorAdd<<<blockCount, blockSize>>>(d_dest, d_a, d_b, len);
+    KernalVectorAdd<<<blockCount, blockSize>>>(d_dest, d_a, d_b, len);
     H_A(hipDeviceSynchronize());
 
     H_A(hipMemcpy(dest, d_dest, len, hipMemcpyDeviceToHost));

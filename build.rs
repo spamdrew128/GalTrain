@@ -13,6 +13,10 @@ const KERNELS_PATH: &str = "./src/kernals";
 const KERNAL_ASM: &str = "libkernels.a";
 const KERNAL_BINDINGS_NAME: &str = "kernal_bindings.rs";
 
+fn out_dir() -> PathBuf {
+    PathBuf::from(env::var_os("OUT_DIR").unwrap())
+}
+
 fn hip_lib_bindgen() {
     println!("cargo::rustc-link-lib=dylib=hipblas");
     println!("cargo::rustc-link-lib=dylib=rocblas");
@@ -32,7 +36,7 @@ fn hip_lib_bindgen() {
         .layout_tests(false)
         .generate()
         .expect("Unable to generate bindings")
-        .write_to_file(PathBuf::from(env::var_os("OUT_DIR").unwrap()).join(HIP_BINDINGS_NAME))
+        .write_to_file(out_dir().join(HIP_BINDINGS_NAME))
         .expect("Couldn't write bindings!");
 }
 
@@ -53,6 +57,7 @@ fn kernal_bindgen() {
         .compile(KERNAL_ASM);
 
     bindgen::Builder::default()
+        .clang_arg(format!("-I{}", out_dir().join(KERNAL_ASM).display()))
         .header(KERNAL_WRAPPER_PATH)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .size_t_is_usize(true)
@@ -63,7 +68,7 @@ fn kernal_bindgen() {
         .layout_tests(false)
         .generate()
         .expect("Unable to generate bindings")
-        .write_to_file(PathBuf::from(env::var_os("OUT_DIR").unwrap()).join(KERNAL_BINDINGS_NAME))
+        .write_to_file(out_dir().join(KERNAL_BINDINGS_NAME))
         .expect("Couldn't write bindings!");
 }
 
