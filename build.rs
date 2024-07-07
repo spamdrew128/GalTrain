@@ -18,9 +18,6 @@ mod hip {
 
         println!("cargo::rustc-link-search=native={HIP_PATH}/lib");
 
-        // The bindgen::Builder is the main entry point
-        // to bindgen, and lets you build up options for
-        // the resulting bindings.
         let bindings = bindgen::Builder::default()
             .clang_arg(format!("-I{HIP_PATH}/include"))
             .header(WRAPPER_PATH)
