@@ -56,6 +56,12 @@ fn kernal_bindgen() {
         .flag("-munsafe-fp-atomics") // Required since AMDGPU doesn't emit hardware atomics by default
         .compile(KERNAL_ASM);
 
+    println!("cargo::rustc-link-lib=dylib=hipblas");
+    println!("cargo::rustc-link-lib=dylib=rocblas");
+    println!("cargo::rustc-link-lib=dylib=amdhip64");
+
+    println!("cargo::rustc-link-search=native={HIP_PATH}/lib");
+
     bindgen::Builder::default()
         .header(KERNAL_WRAPPER_PATH)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
