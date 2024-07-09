@@ -1,42 +1,83 @@
-fn main() {
-    hip::build();
+#![allow(unused)]
+
+use std::{env, path::PathBuf};
+
+use bindgen::EnumVariation;
+
+const HIP_WRAPPER_PATH: &str = "./src/hip_wrapper.h";
+const HIP_PATH: &str = "/opt/rocm";
+const HIP_BINDINGS_NAME: &str = "hip_bindings.rs";
+
+const KERNAL_WRAPPER_PATH: &str = "./src/kernals/kernal_wrapper.h";
+const KERNELS_PATH: &str = "./src/kernals";
+const KERNAL_ASM: &str = "libkernels.a";
+const KERNAL_BINDINGS_NAME: &str = "kernal_bindings.rs";
+
+fn out_dir() -> PathBuf {
+    PathBuf::from(env::var_os("OUT_DIR").unwrap())
 }
 
-mod hip {
-    use std::env;
-    use std::path::PathBuf;
-    use bindgen::EnumVariation;
+fn hip_lib_bindgen() {
+    println!("cargo::rustc-link-lib=dylib=hipblas");
+    println!("cargo::rustc-link-lib=dylib=rocblas");
+    println!("cargo::rustc-link-lib=dylib=amdhip64");
 
-    const WRAPPER_PATH: &str = "./src/wrapper.h";
-    const HIP_PATH: &str = "/opt/rocm";
+    println!("cargo::rustc-link-search=native={HIP_PATH}/lib");
 
-    pub fn build() {
-        println!("cargo::rustc-link-lib=dylib=hipblas");
-        println!("cargo::rustc-link-lib=dylib=rocblas");
-        println!("cargo::rustc-link-lib=dylib=amdhip64");
+    bindgen::Builder::default()
+        .clang_arg(format!("-I{HIP_PATH}/include"))
+        .header(HIP_WRAPPER_PATH)
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+        .size_t_is_usize(true)
+        .default_enum_style(EnumVariation::Rust {
+            non_exhaustive: true,
+        })
+        .must_use_type("hipError")
+        .layout_tests(false)
+        .generate()
+        .expect("Unable to generate bindings")
+        .write_to_file(out_dir().join(HIP_BINDINGS_NAME))
+        .expect("Couldn't write bindings!");
+}
 
-        println!("cargo::rustc-link-search=native={HIP_PATH}/lib");
+fn kernal_bindgen() {
+    let file_names = ["vector_add"];
+    let files: Vec<String> = file_names
+        .iter()
+        .map(|name| format!("{KERNELS_PATH}/{name}.cpp"))
+        .collect();
 
-        // The bindgen::Builder is the main entry point
-        // to bindgen, and lets you build up options for
-        // the resulting bindings.
-        let bindings = bindgen::Builder::default()
-            .clang_arg(format!("-I{HIP_PATH}/include"))
-            .header(WRAPPER_PATH)
-            .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
-            .size_t_is_usize(true)
-            .default_enum_style(EnumVariation::Rust {
-                non_exhaustive: true,
-            })
-            .must_use_type("hipError")
-            .layout_tests(false)
-            .generate()
-            .expect("Unable to generate bindings");
+    cc::Build::new()
+        .compiler("hipcc")
+        .debug(false)
+        .opt_level(3)
+        .files(files)
+        .flag(&format!("--offload-arch=gfx1010"))
+        .flag("-munsafe-fp-atomics") // Required since AMDGPU doesn't emit hardware atomics by default
+        .compile(KERNAL_ASM);
 
-        // Write the bindings to the $OUT_DIR/bindings.rs file.
-        let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
-        bindings
-            .write_to_file(out_path.join("bindings.rs"))
-            .expect("Couldn't write bindings!");
-    }
+    println!("cargo::rustc-link-lib=dylib=hipblas");
+    println!("cargo::rustc-link-lib=dylib=rocblas");
+    println!("cargo::rustc-link-lib=dylib=amdhip64");
+
+    println!("cargo::rustc-link-search=native={HIP_PATH}/lib");
+
+    bindgen::Builder::default()
+        .header(KERNAL_WRAPPER_PATH)
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+        .size_t_is_usize(true)
+        .default_enum_style(EnumVariation::Rust {
+            non_exhaustive: true,
+        })
+        .must_use_type("hipError")
+        .layout_tests(false)
+        .generate()
+        .expect("Unable to generate bindings")
+        .write_to_file(out_dir().join(KERNAL_BINDINGS_NAME))
+        .expect("Couldn't write bindings!");
+}
+
+pub fn main() {
+    // hip_lib_bindgen(); I dont think this is needed for now
+    kernal_bindgen();
 }
