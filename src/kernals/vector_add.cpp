@@ -9,7 +9,7 @@ __global__ void KernalVectorAdd(float *dest, const float *a, const float* b, siz
     }
 }
 
-void AddVecs(float *dest, const float *a, const float* b, size_t len) {
+extern "C" void AddVecs(float *dest, const float *a, const float* b, size_t len) {
     size_t arr_bytes = len * sizeof(float);
 
     float *d_a, *d_b, *d_dest;
