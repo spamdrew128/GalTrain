@@ -78,6 +78,6 @@ fn kernal_bindgen() {
 }
 
 pub fn main() {
-    // hip_lib_bindgen(); I dont think this is needed for now
+    hip_lib_bindgen();
     kernal_bindgen();
 }
