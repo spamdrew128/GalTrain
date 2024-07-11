@@ -1,6 +1,7 @@
 use test::vector_add;
 
 mod bindings;
+mod hip;
 mod test;
 
 fn main() {
