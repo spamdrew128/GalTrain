@@ -1,8 +1,14 @@
-#![allow(unused)]
+/*
+    THIS FILE WAS WRITTEN USING https://github.com/jw1912/bullet HEAVILY AS A REFERENCE.
+    THANK YOU JW :)
+*/
 
 use std::{env, path::PathBuf};
 
-use bindgen::EnumVariation;
+use bindgen::{
+    callbacks::{MacroParsingBehavior, ParseCallbacks},
+    EnumVariation,
+};
 
 const HIP_WRAPPER_PATH: &str = "./src/hip_wrapper.h";
 const HIP_PATH: &str = "/opt/rocm";
@@ -17,6 +23,34 @@ fn out_dir() -> PathBuf {
     PathBuf::from(env::var_os("OUT_DIR").unwrap())
 }
 
+// NOTE: THIS IS TO AVOID DUPLICATING DEFINITIONS
+const IGNORED_MACROS: &[&str] = &[
+    "FP_INFINITE",
+    "FP_NAN",
+    "FP_NORMAL",
+    "FP_SUBNORMAL",
+    "FP_ZERO",
+    "IPPORT_RESERVED",
+];
+
+#[derive(Debug)]
+struct CustomParseCallBacks;
+
+impl ParseCallbacks for CustomParseCallBacks {
+    fn will_parse_macro(&self, name: &str) -> MacroParsingBehavior {
+        if IGNORED_MACROS.contains(&name) {
+            MacroParsingBehavior::Ignore
+        } else {
+            MacroParsingBehavior::Default
+        }
+    }
+
+    // redirect to normal handler
+    fn include_file(&self, filename: &str) {
+        bindgen::CargoCallbacks::new().include_file(filename)
+    }
+}
+
 fn hip_lib_bindgen() {
     println!("cargo::rustc-link-lib=dylib=hipblas");
     println!("cargo::rustc-link-lib=dylib=rocblas");
@@ -27,7 +61,7 @@ fn hip_lib_bindgen() {
     bindgen::Builder::default()
         .clang_arg(format!("-I{HIP_PATH}/include"))
         .header(HIP_WRAPPER_PATH)
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+        .parse_callbacks(Box::new(CustomParseCallBacks))
         .size_t_is_usize(true)
         .default_enum_style(EnumVariation::Rust {
             non_exhaustive: true,
