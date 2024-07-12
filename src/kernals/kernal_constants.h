@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
-constexpr size_t threadsPerBlock = static_cast<size_t>(1024);
+enum {
+    ThreadsPerBlock = 1024
+};
 
 #endif

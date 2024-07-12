@@ -11,6 +11,6 @@ __global__ void KernalVectorAdd(float *dest, const float *a, const float* b, siz
 }
 
 extern "C" void AddVecs(float *d_dest, const float *d_a, const float* d_b, size_t len) {
-    const size_t num_blocks = (len + threadsPerBlock - 1) / threadsPerBlock;
-    KernalVectorAdd<<<num_blocks, threadsPerBlock>>>(d_dest, d_a, d_b, len);
+    const size_t num_blocks = (len + ThreadsPerBlock - 1) / ThreadsPerBlock;
+    KernalVectorAdd<<<num_blocks, ThreadsPerBlock>>>(d_dest, d_a, d_b, len);
 }
