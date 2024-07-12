@@ -86,7 +86,7 @@ fn kernal_bindgen() {
         .debug(false)
         .opt_level(3)
         .files(files)
-        .flag(&format!("--offload-arch=gfx1010"))
+        .flag("--offload-arch=gfx1010")
         .flag("-munsafe-fp-atomics") // Required since AMDGPU doesn't emit hardware atomics by default
         .compile(KERNAL_ASM);
 

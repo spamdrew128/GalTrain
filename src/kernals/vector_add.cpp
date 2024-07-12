@@ -14,26 +14,3 @@ extern "C" void AddVecs(float *d_dest, const float *d_a, const float* d_b, size_
     const size_t num_blocks = (len + threadsPerBlock - 1) / threadsPerBlock;
     KernalVectorAdd<<<num_blocks, threadsPerBlock>>>(d_dest, d_a, d_b, len);
 }
-
-// extern "C" void AddVecs(float *dest, const float *a, const float* b, size_t len) {
-//     size_t arrBytes = len * sizeof(float);
-
-//     float *d_a, *d_b, *d_dest;
-//     H_A(hipMalloc((void**)&d_a, arrBytes));
-//     H_A(hipMalloc((void**)&d_b, arrBytes));
-//     H_A(hipMalloc((void**)&d_dest, arrBytes));
-
-//     H_A(hipMemcpy(d_a, a, arrBytes, hipMemcpyHostToDevice));
-//     H_A(hipMemcpy(d_b, b, arrBytes, hipMemcpyHostToDevice));
-
-//     uint32_t num_blocks = (len + threadsPerBlock - 1) / threadsPerBlock;
-//     KernalVectorAdd<<<num_blocks, threadsPerBlock>>>(d_dest, d_a, d_b, len);
-
-//     H_A(hipDeviceSynchronize());
-
-//     H_A(hipMemcpy(dest, d_dest, arrBytes, hipMemcpyDeviceToHost));
-
-//     H_A(hipFree(d_a));
-//     H_A(hipFree(d_b));
-//     H_A(hipFree(d_dest));
-// }

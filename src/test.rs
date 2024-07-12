@@ -1,5 +1,5 @@
 use crate::{
-    bindings::kernal_bindings::AddVecs,
+    bindings::kernals::AddVecs,
     hip::hip_funcs::{
         hip_free, hip_malloc, hip_memcpy_device_to_host, hip_memcpy_host_to_device, hip_sync,
     },

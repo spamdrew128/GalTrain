@@ -1,4 +1,4 @@
-use crate::bindings::hip_bindings::{
+use crate::bindings::hip::{
     hipDeviceSynchronize, hipError_t, hipFree, hipMalloc, hipMemcpy, hipMemcpyKind,
 };
 use std::stringify;
