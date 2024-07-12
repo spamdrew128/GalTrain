@@ -40,6 +40,6 @@ pub fn hip_memcpy_host_to_device<T>(dest: *mut T, src: *const T, num_items: usiz
     hip_memcpy(dest, src, num_items, hipMemcpyKind::hipMemcpyHostToDevice);
 }
 
-pub fn hip_memcpy_device_to_host_<T>(dest: *mut T, src: *const T, num_items: usize) {
+pub fn hip_memcpy_device_to_host<T>(dest: *mut T, src: *const T, num_items: usize) {
     hip_memcpy(dest, src, num_items, hipMemcpyKind::hipMemcpyDeviceToHost);
 }

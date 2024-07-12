@@ -13,6 +13,8 @@ fn main() {
         b.push(3.0);
     }
 
-    let res = vector_add(a, b);
-    println!("{:?}\n", res);
+    unsafe {
+        let res = vector_add(a, b);
+        println!("{:?}\n", res);
+    }
 }
