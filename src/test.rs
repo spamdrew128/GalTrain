@@ -5,7 +5,7 @@ use crate::{
     },
 };
 
-pub unsafe fn vector_add(a: Vec<f32>, b: Vec<f32>) {
+pub unsafe fn vector_add(a: Vec<f32>, b: Vec<f32>) -> Vec<f32> {
     assert_eq!(a.len(), b.len());
     let len = a.len();
 
@@ -25,4 +25,6 @@ pub unsafe fn vector_add(a: Vec<f32>, b: Vec<f32>) {
     hip_free(d_a);
     hip_free(d_b);
     hip_free(d_dest);
+
+    dest
 }
