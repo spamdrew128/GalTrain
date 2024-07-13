@@ -31,7 +31,7 @@ __global__ void K_SqMatMul(float *dest, const float *a, const float *b, size_t n
     }
 }
 
-extern "C" void SqMatMul(float *d_dest, const float *d_a, const float* d_b, size_t n) {
+extern "C" void SqMatMul(float *d_dest, const float *d_a, const float *d_b, size_t n) {
     size_t blockDimX = sqrt(ThreadsPerBlock);
     size_t gridDimX = (n + blockDimX - 1) / blockDimX;
     dim3 dimBlock(blockDimX, blockDimX);
