@@ -29,32 +29,32 @@ pub unsafe fn vector_add(a: Vec<f32>, b: Vec<f32>) -> Vec<f32> {
     dest
 }
 
-fn matmul_cpu_verify(gpu_res: &[f32], a: &[f32], b: &[f32], n: usize) {
+fn matmul_cpu_verify(gpu_res: &[i32], a: &[i32], b: &[i32], n: usize) {
     for r in 0..n {
         for c in 0..n {
-            let mut dot_product = 0.0;
+            let mut dot_product = 0;
             for i in 0..n {
                 dot_product += a[r * n + i] * b[i * n + c];
             }
-            assert_eq!(dot_product, gpu_res[r * n + c]);
+            assert_eq!(dot_product, gpu_res[r * n + c], "Fail at row {r} col {c}\n");
         }
     }
 }
 
 pub fn test_sq_matmul(n: usize) {
     let len = n * n;
-    let mut a: Vec<f32> = vec![];
-    let mut b: Vec<f32> = vec![];
-    let mut dest = vec![0_f32; len];
+    let mut a: Vec<i32> = vec![];
+    let mut b: Vec<i32> = vec![];
+    let mut dest = vec![0_i32; len];
 
-    for i in 0..len {
-        a.push(0.6 * i as f32);
-        b.push(1.2 * i as f32);
+    for i in 0..(len as i32) {
+        a.push(1 + i);
+        b.push(i);
     }
 
-    let d_a: *mut f32 = hip_malloc(len);
-    let d_b: *mut f32 = hip_malloc(len);
-    let d_dest: *mut f32 = hip_malloc(len);
+    let d_a: *mut i32 = hip_malloc(len);
+    let d_b: *mut i32 = hip_malloc(len);
+    let d_dest: *mut i32 = hip_malloc(len);
 
     hip_memcpy_host_to_device(d_a, a.as_ptr(), len);
     hip_memcpy_host_to_device(d_b, b.as_ptr(), len);

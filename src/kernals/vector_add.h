@@ -4,6 +4,6 @@
 #include <stdlib.h>
 
 void AddVecs(float *dest, const float *a, const float* b, size_t len);
-void SqMatMul(float *d_dest, const float *d_a, const float* d_b, size_t n);
+void SqMatMul(int32_t *d_dest, const int32_t *d_a, const int32_t* d_b, size_t n);
 
 #endif

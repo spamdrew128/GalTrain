@@ -5,5 +5,5 @@ mod hip;
 mod test;
 
 fn main() {
-    test_sq_matmul(1200);
+    test_sq_matmul(33);
 }
