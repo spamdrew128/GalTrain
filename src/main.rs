@@ -5,8 +5,7 @@ mod hip;
 mod test;
 
 fn main() {
-    for n in 0..1223 {
-        println!("{n}");
-        test_sq_matmul(n);
-    }
+    let n = 3400;
+    println!("Evaluating {n}x{n} matmul:");
+    test_sq_matmul(n);
 }
