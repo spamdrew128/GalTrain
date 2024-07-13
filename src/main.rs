@@ -5,5 +5,8 @@ mod hip;
 mod test;
 
 fn main() {
-    test_sq_matmul(33);
+    for n in 0..1223 {
+        println!("{n}");
+        test_sq_matmul(n);
+    }
 }

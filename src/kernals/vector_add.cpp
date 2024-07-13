@@ -20,7 +20,7 @@ __global__ void K_SqMatMul(int32_t *dest, const int32_t *a, const int32_t *b, si
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
 
-    float dotProduct = 0;
+    int32_t dotProduct = 0;
     if((col < n) && (row < n)) {
         for(size_t i = 0; i < n; i++) {
             // mat[r][c] = mat[r*n + c]
