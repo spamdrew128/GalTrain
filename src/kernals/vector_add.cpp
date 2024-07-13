@@ -22,7 +22,7 @@ __global__ void K_SqMatMul(float *dest, const float *a, const float *b, size_t n
 
     float dotProduct = 0;
     if((col < n) && (row < n)) {
-        for(int i = 0; i < n; i++) {
+        for(size_t i = 0; i < n; i++) {
             // mat[r][c] = mat[r*n + c]
             dotProduct += a[row*n + i] * b[i*n + col];
         }
@@ -37,5 +37,5 @@ extern "C" void SqMatMul(float *d_dest, const float *d_a, const float* d_b, size
     dim3 dimBlock(blockDimX, blockDimX);
     dim3 dimGrid(gridDimX, gridDimX);
 
-    K_SqMatMul<<<dimGrid, dimBlock>>>(d_dest, d_a, d_b, len);
+    K_SqMatMul<<<dimGrid, dimBlock>>>(d_dest, d_a, d_b, n);
 }
