@@ -5,6 +5,12 @@
         "format": "cpp",
         "limits": "cpp",
         "tuple": "cpp",
-        "type_traits": "cpp"
+        "type_traits": "cpp",
+        "complex": "cpp",
+        "random": "cpp",
+        "text_encoding": "cpp",
+        "thread": "cpp",
+        "__locale": "cpp",
+        "locale": "cpp"
     }
 }
