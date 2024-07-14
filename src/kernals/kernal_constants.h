@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 enum {
-    ThreadsPerBlock = 1024
+    ThreadsPerBlock = 256
 };
 
 #endif
