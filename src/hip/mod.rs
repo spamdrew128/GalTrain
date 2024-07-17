@@ -1,1 +1,2 @@
-pub(crate) mod hip_funcs;
+pub(crate) mod blas;
+pub(crate) mod standard;

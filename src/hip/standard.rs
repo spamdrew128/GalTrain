@@ -1,5 +1,5 @@
 use crate::bindings::hip::{
-    hipDeviceSynchronize, hipError_t, hipFree, hipMalloc, hipMemcpy, hipMemcpyKind,
+    hipDeviceSynchronize, hipError_t, hipFree, hipMalloc, hipMemcpy, hipMemcpyKind, hipMemset,
 };
 use std::stringify;
 
@@ -25,6 +25,19 @@ pub fn hip_malloc<T>(num_items: usize) -> *mut T {
 
     mem
 }
+
+pub fn hip_calloc<T>(num_items: usize) -> *mut T {
+    let num_bytes = num_items * std::mem::size_of::<T>();
+    let mut mem = std::ptr::null_mut::<T>();
+    let mem_ptr = (&mut mem) as *mut *mut T;
+
+    call!(hipMalloc(mem_ptr.cast(), num_bytes));
+    call!(hipMemset(mem.cast(), 0, num_bytes));
+    hip_sync();
+
+    mem
+}
+
 
 pub fn hip_free<T>(ptr: *mut T) {
     call!(hipFree(ptr.cast()));
