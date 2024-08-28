@@ -52,8 +52,6 @@ impl ParseCallbacks for CustomParseCallBacks {
 }
 
 fn hip_lib_bindgen() {
-    println!("cargo::rustc-link-lib=dylib=hipblas");
-    println!("cargo::rustc-link-lib=dylib=rocblas");
     println!("cargo::rustc-link-lib=dylib=amdhip64");
 
     println!("cargo::rustc-link-search=native={HIP_PATH}/lib");
@@ -90,8 +88,6 @@ fn kernal_bindgen() {
         .flag("-munsafe-fp-atomics") // Required since AMDGPU doesn't emit hardware atomics by default
         .compile(KERNAL_ASM);
 
-    println!("cargo::rustc-link-lib=dylib=hipblas");
-    println!("cargo::rustc-link-lib=dylib=rocblas");
     println!("cargo::rustc-link-lib=dylib=amdhip64");
 
     println!("cargo::rustc-link-search=native={HIP_PATH}/lib");
